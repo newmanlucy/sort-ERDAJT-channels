@@ -63,8 +63,9 @@ def newChannelFromOldChannel(oldChannel):
 
 def reconstructSequence(inputFile, orderedFile):
     xLightsFile = "inputSequences/" + inputFile
-    orderedFile = "channelOrderSequences/" + channelOrderFileName
+    orderedFile = "channelOrderSequences/" + orderedFile
     outFile = "outputSequences/" + inputFile
+    error_channels = []
     # parse a well-formed LOR LMS file for reference
     LORroot, channelDict, dummyList = parseLMSfromLOR(orderedFile)
     # create a new sequence XML object based on the previous one
@@ -77,10 +78,16 @@ def reconstructSequence(inputFile, orderedFile):
     # set channels and effects based on a combo of old xLights LMS file and well-formed LOR LMS file
     channels = ET.SubElement(newSeq, 'channels')
     for oldChannelNum in channelDict:
+        if oldChannelNum not in effectDict:
+            error_channels.append(oldChannelNum)
+            continue
         oldChannel = channelDict[oldChannelNum]
         newChannel = newChannelFromOldChannel(oldChannel)
         newChannel.extend(effectDict[oldChannelNum])
         channels.append(newChannel)
+    # display errors
+    print("error with channel(s)")
+    print(error_channels)
     # add dummy channels
     channels.extend(dummyList)
     # add rgbChannels, cosmicColorDevices, and channelGroupLists
@@ -110,8 +117,6 @@ def reconstructSequence(inputFile, orderedFile):
 
 
 if __name__ == '__main__':
-    fileName = "Blinding Lights.lms"
-    channelOrderFileName = "Frozen Oceans.lms"
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('input_file')
     parser.add_argument('correct_order_file')
