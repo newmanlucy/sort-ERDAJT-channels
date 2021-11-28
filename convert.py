@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import re
 import ntpath
+import argparse
 
 def getChannelFromName(name):
     pattern = "Ch ([0-9]+).*"
@@ -111,5 +112,10 @@ def reconstructSequence(inputFile, orderedFile):
 if __name__ == '__main__':
     fileName = "Blinding Lights.lms"
     channelOrderFileName = "Frozen Oceans.lms"
-    reconstructSequence(fileName, channelOrderFileName)
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('input_file')
+    parser.add_argument('correct_order_file')
+    args = parser.parse_args()
+
+    reconstructSequence(args.input_file, args.correct_order_file)
 
