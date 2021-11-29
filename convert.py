@@ -61,6 +61,18 @@ def newChannelFromOldChannel(oldChannel):
     newChannel.set("savedIndex", oldChannel.get("savedIndex"))
     return newChannel
 
+def make_fifteen_two():
+    # <channel name="Unit 15.02" color="12632256" centiseconds="18233" deviceType="LOR" unit="21" circuit="2" savedIndex="807"/>
+    fifteen_two = ET.Element("channel")
+    fifteen_two.set("name", "Unit 15.02")
+    fifteen_two.set("color", "12632256")
+    fifteen_two.set("centiseconds", "18233")
+    fifteen_two.set("deviceType", "LOR")
+    fifteen_two.set("unit", "21")
+    fifteen_two.set("circuit", "2")
+    fifteen_two.set("savedIndex", "807")
+    return fifteen_two
+
 def reconstructSequence(inputFile, orderedFile):
     xLightsFile = "inputSequences/" + inputFile
     orderedFile = "channelOrderSequences/" + orderedFile
@@ -85,6 +97,10 @@ def reconstructSequence(inputFile, orderedFile):
         newChannel = newChannelFromOldChannel(oldChannel)
         newChannel.extend(effectDict[oldChannelNum])
         channels.append(newChannel)
+    # add the missing channel
+    if 322 in error_channels:
+        fifteen_two = make_fifteen_two()
+        channels.append(fifteen_two)
     # display errors
     print("error with channel(s)")
     print(error_channels)
