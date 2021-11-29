@@ -52,23 +52,23 @@ def parseLMSfromLOR(filename):
                 dummyList.append(channel)
     return root, channelDict, dummyList
 
-def newChannelFromOldChannel(oldChannel):
+def newChannelFromOldChannel(oldChannel, song_length):
     newChannel = ET.Element("channel")
     newChannel.set("name", oldChannel.get("name"))
     newChannel.set("color", oldChannel.get("color"))
-    newChannel.set("centiseconds", oldChannel.get("centiseconds"))
+    newChannel.set("centiseconds", song_length)
     newChannel.set("deviceType", oldChannel.get("deviceType"))
     newChannel.set("unit", oldChannel.get("unit"))
     newChannel.set("circuit", oldChannel.get("circuit"))
     newChannel.set("savedIndex", oldChannel.get("savedIndex"))
     return newChannel
 
-def make_fifteen_two():
+def make_fifteen_two(song_length):
     # <channel name="Unit 15.02" color="12632256" centiseconds="18233" deviceType="LOR" unit="21" circuit="2" savedIndex="807"/>
     fifteen_two = ET.Element("channel")
     fifteen_two.set("name", "Unit 15.02")
     fifteen_two.set("color", "12632256")
-    fifteen_two.set("centiseconds", "18233")
+    fifteen_two.set("centiseconds", song_length)
     fifteen_two.set("deviceType", "LOR")
     fifteen_two.set("unit", "21")
     fifteen_two.set("circuit", "2")
@@ -89,6 +89,9 @@ def reconstructSequence(inputFile, orderedFile):
     oldMusicFilename = oldRoot.get("musicFilename")
     newMusicFileName = ntpath.basename(oldMusicFilename)
     newSeq.set("musicFilename", newMusicFileName)
+    # determine song length
+    oldTrack = oldRoot.find("tracks/track")
+    song_length = oldTrack.get("totalCentiseconds")
     # set channels and effects based on a combo of old xLights LMS file and well-formed LOR LMS file
     channels = ET.SubElement(newSeq, 'channels')
     for oldChannelNum in channelDict:
@@ -96,12 +99,13 @@ def reconstructSequence(inputFile, orderedFile):
             error_channels.append(oldChannelNum)
             continue
         oldChannel = channelDict[oldChannelNum]
-        newChannel = newChannelFromOldChannel(oldChannel)
+        newChannel = newChannelFromOldChannel(oldChannel, song_length)
         newChannel.extend(effectDict[oldChannelNum])
         channels.append(newChannel)
     # add the missing channel
+
     if 322 in error_channels:
-        fifteen_two = make_fifteen_two()
+        fifteen_two = make_fifteen_two(song_length)
         channels.append(fifteen_two)
     # display errors
     print("error with channel(s)")
