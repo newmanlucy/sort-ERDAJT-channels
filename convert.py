@@ -27,9 +27,11 @@ def parseLMSfromXLights(filename):
         unit = channel.get("unit")
         circuit = channel.get("circuit")
         if unit is not None and circuit is not None:
-           channelNum = convertChannel(int(unit), int(circuit))
-        channelEffects = channel.findall("effect")
-        channelEffectDict[channelNum] = channelEffects
+            channelNum = convertChannel(int(unit), int(circuit))
+            channelEffects = channel.findall("effect")
+            channelEffectDict[channelNum] = channelEffects
+        else:
+            print("channel and unit not found for %s" % channelName)
     return root, channelEffectDict
 
 def parseLMSfromLOR(filename):
